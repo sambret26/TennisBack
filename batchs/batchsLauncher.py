@@ -45,5 +45,5 @@ async def updateCalLoop():
     if settingRepository.getBatchsActive() is False:
         return
     log.info(BATCH, "Lancement du batch updateCal")
-    await batchs.updateCalendar()
+    batchs.updateCalendar()
     log.info(BATCH, "Fin du batch updateCal")

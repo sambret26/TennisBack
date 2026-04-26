@@ -62,6 +62,8 @@ class PlayerRepository:
 
     @staticmethod
     def addPlayers(players):
+        for player in players:
+            player.categories = []
         db.session.add_all(players)
         db.session.commit()
 

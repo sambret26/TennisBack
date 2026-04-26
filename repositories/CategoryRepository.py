@@ -10,7 +10,7 @@ class CategoryRepository:
 
     @staticmethod
     def getCategoriesMap():
-        return {c.fftId: c.id for c in Category.query.all()}
+        return {c.fftId: c for c in Category.query.all()}
 
     #ADDERS
     @staticmethod

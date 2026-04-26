@@ -54,11 +54,11 @@ async def clear(ctx, nombre: int = 100):
 async def on_ready():
     log.info(BOT, "Connected !")
     scheduler.add_job(launcher.pgwLoop, CronTrigger(hour=8, minute=58, timezone=tz), args=[bot])
-    #scheduler.add_job(launcher.inscriptionsLoop, CronTrigger(second=30, timezone=tz))
-    scheduler.add_job(launcher.convocationLoop, CronTrigger(second=30, timezone=tz))
+    scheduler.add_job(launcher.inscriptionsLoop, CronTrigger(second=20, timezone=tz))
+    scheduler.add_job(launcher.convocationLoop, CronTrigger(second=40, timezone=tz))
     scheduler.add_job(launcher.sendNotifLoop, CronTrigger(second=0, timezone=tz), args=[bot])
     scheduler.add_job(launcher.updateMatchLoop, CronTrigger(hour=2, minute=0, timezone=tz))
-    scheduler.add_job(launcher.updateCalLoop, CronTrigger(hour=3, minute=0, timezone=tz))
+    #scheduler.add_job(launcher.updateCalLoop, CronTrigger(hour=3, minute=0, timezone=tz))
     scheduler.start()
 
 @bot.event

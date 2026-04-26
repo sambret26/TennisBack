@@ -35,7 +35,7 @@ def createAccount():
         return jsonify({'message': constants.USER_ALREADY_EXISTS}), 409
     user = User.fromJson(data)
     userRepository.addUser(user)
-    message = Message("USERS", f"{user.name.title()} a creé son compte")
+    message = Message("USERS", f"{user.name.title()} a crée son compte")
     messageRepository.addMessage(message)
     token = jwt.encode(user.toDict(), SECRET_KEY, algorithm='HS256')
     return jsonify({'token': token}), 200

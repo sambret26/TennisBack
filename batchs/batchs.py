@@ -39,14 +39,18 @@ def inscriptions(sendNotif):
         updateDBTeams(teams)
     if not playerCategories :
         return False
-    for playerCategorie in playerCategories:
-        playerId = playersMap.get(playerCategorie.playerId)
-        if playerId is None :
+    inscriptionsIds = PlayerCategoriesRepository.getInscriptionsId()
+    playersCategoriesToAdd = []
+    for playerCategory in playerCategories:
+        playerId = playersMap.get(playerCategory.playerId)
+        if playerId is None:
             #log.error(BATCH, f"Player {playerCategorie.playerId} not found")
-            playerCategories.remove(playerCategorie)
             continue
-        playerCategorie.playerId = playerId
-    playerCategoriesRepository.addPlayerCategories(playerCategories)
+        playerCategory.playerId = playerId
+        if playerCategory.inscriptionId in inscriptionsIds:
+            continue
+        playersCategoriesToAdd.append(playerCategory)
+    playerCategoriesRepository.addPlayerCategories(playersCategoriesToAdd)
     return True
 
 def convocations():
@@ -77,6 +81,9 @@ def convocations():
     convocationRepository.addConvocations(convocationsToCreate)
     messageRepository.addMessages(messages)
     return True
+
+def updateMatch():
+    mojaService.updateAllMatches()
 
 def updateCalendar():
     return None #TODO : Implement calendar batch
@@ -109,10 +116,12 @@ def addPlayerInPlayersList(players, playerCategories, player, categoriesMap, ran
     for category in player['epreuves']:
         if category['statutInscriptionCode'] != "PAR": 
             continue
-        categoryId = categoriesMap.get(category['eprId'])
-        newPlayerCategories = PlayerCategories(newPlayer.fftId, categoryId, category['insId'])
+        categoryInDB = categoriesMap.get(category['eprId'])
+        categoryInsId = category['insId'] if 'insId' in category else category.get('jseId')
+        newPlayerCategories = PlayerCategories(newPlayer.fftId, categoryInDB.id, categoryInsId)
         playerCategories.append(newPlayerCategories)
         #TODO : Amount
+        newPlayer.categories.append(categoryInDB)
     addPlayer(players, newPlayer)
 
 def addTeamsInLists(teams, team, playersMap):
@@ -219,26 +228,21 @@ def checkCategories(player, playerInDB, sendNotif):
     newCategories = player.categories
     oldCategories = playerInDB.categories
     messages = []
-    handleNewCategories(player, playerInDB, newCategories, oldCategories, messages, sendNotif)
+    handleNewCategories(player, newCategories, oldCategories, messages, sendNotif)
     handleOldCategories(player, newCategories, oldCategories, messages, sendNotif)
     if len(messages) > 0 :
         #playerBalanceRepository.updatePlayerBalanceByPlayerId(playerInDB.id, player.balance)
         if sendNotif:
             messageRepository.addMessages(messages)
 
-def handleNewCategories(player, playerInDB, newCategories, oldCategories, messages, sendNotif):
-    playerCategoriesToAdd = []
+def handleNewCategories(player, newCategories, oldCategories, messages, sendNotif):
     for category in newCategories:
         if category not in oldCategories:
-            playerCategory = PlayerCategories(playerInDB.id, category.id)
-            playerCategoriesToAdd.append(playerCategory)
             if sendNotif:
                 msg = f"Nouvelle inscription : {player.getFullName()} ({player.club})"
                 if player.ranking :
                     msg += f" classé(e) {player.ranking.simple}"
                 messages.append(Message(category.code, msg))
-    if playerCategoriesToAdd:
-        playerCategoriesRepository.addPlayerCategories(playerCategoriesToAdd)
 
 def handleOldCategories(player, newCategories, oldCategories, messages, sendNotif):
     for category in oldCategories:
