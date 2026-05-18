@@ -16,7 +16,7 @@ tz = timezone(Config.TIME_ZONE)
 DISCORD_GUILD_ID = int(Config.DISCORD_GUILD_ID)
 
 intent = Intents(messages=True, members=True, guilds=True, reactions=True, message_content=True)
-bot = commands.Bot(command_prefix='$', description='Tennis 2025', intents=intent)
+bot = commands.Bot(command_prefix='$', description='Tennis 2026', intents=intent)
 
 @bot.command()
 async def check(ctx):
@@ -41,6 +41,10 @@ async def pgw(ctx):
 @bot.command()
 async def excel(ctx):
     await discordBusiness.excel(ctx)
+
+@bot.command()
+async def auth(ctx, value: int = 0):
+    await discordBusiness.auth(ctx, value)
 
 @bot.command()
 async def cmd(ctx):

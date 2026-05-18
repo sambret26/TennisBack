@@ -1,3 +1,4 @@
+from batchs.batchsLauncher import settingRepository
 from discord import discordFunctions as functions
 from constants import constants
 import discord
@@ -30,7 +31,7 @@ async def nb(bot, ctx):
 
 async def info(ctx, matchLabel: str = None):
     if matchLabel is None:
-        await ctx.send(constants.INFO_UNVALID_PARAM)
+        await ctx.send(constants.INFO_INVALID_PARAM)
         return
     matchLabel = matchLabel.upper()
     match = matchRepository.getMatchByLabel(matchLabel)
@@ -65,6 +66,15 @@ async def pgw(bot):
 async def excel(ctx):
     file = exportExcel.createExcel()
     await ctx.send(file=discord.File(fp=file, filename=constants.EXCEL_FILENAME))
+
+async def auth(ctx, value: int = 0):
+    if value == 0 or value == 1:
+        settingRepository.setAuthError(value)
+        await ctx.send(constants.AUTH_ERROR_SET.replace("VALUE", str(value)))
+        return
+    await ctx.send(constants.AUTH_ERROR_INVALID_PARAM)
+
+
 
 async def cmd(ctx):
     await ctx.send(constants.COMMANDS_LIST)
